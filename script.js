@@ -33,7 +33,7 @@ const panelObserver = new IntersectionObserver((entries) => {
     });
 }, { threshold: 0.2 });
 
-document.querySelectorAll('.glass-panel').forEach(el => {
+document.querySelectorAll('.glass-panel:not(.modal-panel)').forEach(el => {
     el.style.opacity = '0';
     el.style.transform = 'translateY(30px) scale(0.98)';
     el.style.transition = 'opacity 0.7s ease-out, transform 0.7s ease-out';
@@ -146,7 +146,7 @@ async function uploadPortfolioItem({ title, type, file, textContent }) {
         type,
         title,
         src,
-        content: type === 'text' ? textContent : undefined,
+        content: TEXT_TYPES.includes(type) ? textContent : undefined,
         date: new Date().toISOString()
     });
 
@@ -164,69 +164,153 @@ async function loadPortfolioItems() {
     return [];
 }
 
+// ============ Type metadata ============
+const TYPE_META = {
+    story:     { icon: '📖', label: 'داستان' },
+    novel:     { icon: '📚', label: 'رمان' },
+    book:      { icon: '📕', label: 'کتاب' },
+    audiobook: { icon: '🎧', label: 'کتاب صوتی' },
+    text:      { icon: '✍️', label: 'نوشته' },
+    video:     { icon: '🎬', label: 'ویدیو' },
+    audio:     { icon: '🎙️', label: 'صدا' },
+    pdf:       { icon: '📄', label: 'PDF' }
+};
+const TEXT_TYPES = ['text', 'story', 'novel'];
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+}
+
+function itemMediaHtml(item) {
+    if (item.type === 'video') {
+        return `<video controls src="${item.src}"></video>`;
+    }
+    if (item.type === 'audio' || item.type === 'audiobook') {
+        return `<audio controls src="${item.src}"></audio>`;
+    }
+    if (item.type === 'pdf' || item.type === 'book') {
+        const label = item.type === 'book' ? '📕 مشاهده / دانلود کتاب' : '📄 مشاهده PDF';
+        return `<a class="pdf-link" href="${item.src}" target="_blank">${label}</a>`;
+    }
+    if (TEXT_TYPES.includes(item.type)) {
+        return `<p class="item-text">${escapeHtml(item.content)}</p>`;
+    }
+    return '';
+}
+
+function renderItemCard(item) {
+    const meta = TYPE_META[item.type] || { icon: '✨', label: '' };
+    return `
+        <div class="portfolio-item" data-type="${item.type}">
+            <div class="item-media">${itemMediaHtml(item)}</div>
+            <div class="item-meta">
+                <span class="item-badge">${meta.icon} ${meta.label}</span>
+                <h4 class="item-title">${escapeHtml(item.title)}</h4>
+            </div>
+        </div>`;
+}
+
 // ============ Rendering ============
+let allPortfolioItems = [];
+let activeFilter = 'all';
+
+function renderGallery() {
+    const gallery = document.getElementById('portfolioGallery');
+    if (!gallery) return;
+
+    const items = activeFilter === 'all'
+        ? allPortfolioItems
+        : allPortfolioItems.filter(i => i.type === activeFilter);
+
+    if (items.length === 0) {
+        gallery.innerHTML = '<div class="portfolio-empty">هنوز چیزی تو این بخش اضافه نشده — به‌زودی! ✨</div>';
+        return;
+    }
+
+    gallery.innerHTML = items.map(renderItemCard).join('');
+}
+
 async function renderPortfolio() {
     const gallery = document.getElementById('portfolioGallery');
     if (!gallery) return;
 
     gallery.innerHTML = '<div class="portfolio-empty">در حال بارگذاری... ⏳</div>';
-    const items = await loadPortfolioItems();
-
-    if (items.length === 0) {
-        gallery.innerHTML = '<div class="portfolio-empty">هنوز چیزی اضافه نشده — به‌زودی! ✨</div>';
-        return;
-    }
-
-    gallery.innerHTML = items.map(item => {
-        if (item.type === 'video') {
-            return `<div class="portfolio-item"><h4>${item.title}</h4><video controls src="${item.src}"></video></div>`;
-        }
-        if (item.type === 'audio') {
-            return `<div class="portfolio-item"><h4>${item.title}</h4><audio controls src="${item.src}"></audio></div>`;
-        }
-        if (item.type === 'pdf') {
-            return `<div class="portfolio-item"><h4>${item.title}</h4><a class="pdf-link" href="${item.src}" target="_blank">📄 مشاهده PDF</a></div>`;
-        }
-        if (item.type === 'text') {
-            return `<div class="portfolio-item"><h4>${item.title}</h4><p>${item.content}</p></div>`;
-        }
-        return '';
-    }).join('');
+    allPortfolioItems = await loadPortfolioItems();
+    renderGallery();
 }
 
-// ============ Lock Screen ============
+// Filter tab clicks
+document.querySelectorAll('.filter-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeFilter = btn.dataset.filter;
+        renderGallery();
+    });
+});
+
+// Anyone can see the gallery — load it immediately, no password needed.
+renderPortfolio();
+
+// ============ Admin Login Modal ============
+const lockFab = document.getElementById('lockFab');
+const modalOverlay = document.getElementById('modalOverlay');
+const modalClose = document.getElementById('modalClose');
 const unlockBtn = document.getElementById('unlockBtn');
 const passwordInput = document.getElementById('portfolioPassword');
-const lockScreen = document.getElementById('lockScreen');
-const portfolioGallery = document.getElementById('portfolioGallery');
 const uploadPanel = document.getElementById('uploadPanel');
 const lockError = document.getElementById('lockError');
 
-function unlockPortfolio() {
-    lockScreen.style.display = 'none';
-    portfolioGallery.classList.add('show');
+function openModal() {
+    modalOverlay.classList.add('show');
+    passwordInput.value = '';
+    lockError.classList.remove('show');
+    setTimeout(() => passwordInput.focus(), 100);
+}
+
+function closeModal() {
+    modalOverlay.classList.remove('show');
+}
+
+function revealUploadPanel() {
     uploadPanel.classList.add('show');
-    renderPortfolio();
+}
+
+function unlockAdmin() {
+    closeModal();
+    revealUploadPanel();
     sessionStorage.setItem('portfolioUnlocked', 'true');
+    uploadPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function tryUnlock() {
     if (passwordInput.value === PORTFOLIO_PASSWORD) {
-        unlockPortfolio();
+        unlockAdmin();
     } else {
         lockError.classList.add('show');
         setTimeout(() => lockError.classList.remove('show'), 2000);
     }
 }
 
-if (unlockBtn) {
+if (lockFab) {
+    lockFab.addEventListener('click', openModal);
+    modalClose.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeModal();
+    });
     unlockBtn.addEventListener('click', tryUnlock);
     passwordInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') tryUnlock();
     });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+    });
 
+    // Stay unlocked for the rest of this browser tab session
     if (sessionStorage.getItem('portfolioUnlocked') === 'true') {
-        unlockPortfolio();
+        revealUploadPanel();
     }
 }
 
@@ -240,11 +324,13 @@ const uploadSubmitBtn = document.getElementById('uploadSubmitBtn');
 const uploadBtnText = document.getElementById('uploadBtnText');
 
 if (itemType) {
-    itemType.addEventListener('change', () => {
-        const isText = itemType.value === 'text';
+    const syncFormRows = () => {
+        const isText = TEXT_TYPES.includes(itemType.value);
         fileRow.style.display = isText ? 'none' : 'block';
         textRow.style.display = isText ? 'block' : 'none';
-    });
+    };
+    itemType.addEventListener('change', syncFormRows);
+    syncFormRows(); // set correct rows for the default-selected option on load
 }
 
 if (uploadForm) {
@@ -262,12 +348,13 @@ if (uploadForm) {
         const file = document.getElementById('itemFile').files[0];
         const textContent = document.getElementById('itemText').value.trim();
 
-        if (type !== 'text' && !file) {
+        const isTextType = TEXT_TYPES.includes(type);
+        if (!isTextType && !file) {
             uploadStatus.textContent = "یه فایل انتخاب کن 📎";
             uploadStatus.className = 'upload-status error';
             return;
         }
-        if (type === 'text' && !textContent) {
+        if (isTextType && !textContent) {
             uploadStatus.textContent = "متنو بنویس ✍️";
             uploadStatus.className = 'upload-status error';
             return;

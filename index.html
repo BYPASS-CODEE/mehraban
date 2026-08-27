@@ -32,8 +32,29 @@
                 <li><a href="#portfolio" class="nav-link">نمونه‌کارها</a></li>
                 <li><a href="#connect" class="nav-link">تلگرام</a></li>
             </ul>
+            <button class="lock-fab" id="lockFab" title="ورود مدیر" aria-label="ورود مدیر برای افزودن نمونه‌کار">
+                <span class="lock-fab-icon">🔒</span>
+            </button>
         </div>
     </nav>
+
+    <!-- Admin Login Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-panel glass-panel">
+            <button class="modal-close" id="modalClose" aria-label="بستن">×</button>
+            <div class="lock-icon">🔒</div>
+            <h3>ورود مدیر</h3>
+            <p>برای افزودن نمونه‌کار جدید، رمز رو وارد کن</p>
+            <div class="lock-form">
+                <input type="password" id="portfolioPassword" placeholder="رمز عبور" autocomplete="off" />
+                <button id="unlockBtn" class="btn btn-primary">
+                    <span class="btn-shine"></span>
+                    <span>ورود</span>
+                </button>
+            </div>
+            <p class="lock-error" id="lockError">رمز اشتباهه، دوباره امتحان کن 🙈</p>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section id="home" class="hero">
@@ -128,49 +149,51 @@
     <section id="portfolio" class="portfolio">
         <div class="container">
             <div class="section-header">
-                <span class="eyebrow">فضای خصوصی</span>
+                <span class="eyebrow">دنیای نوشته‌هام</span>
                 <h2>نمونه‌کارها</h2>
                 <div class="header-line"></div>
             </div>
 
-            <!-- Lock Screen -->
-            <div class="lock-screen glass-panel" id="lockScreen">
-                <div class="lock-icon">🔒</div>
-                <h3>این بخش خصوصیه</h3>
-                <p>برای دیدن نوشته‌ها، ویدیوها و صداها، رمز رو وارد کن</p>
-                <div class="lock-form">
-                    <input type="password" id="portfolioPassword" placeholder="رمز عبور" />
-                    <button id="unlockBtn" class="btn btn-primary">
-                        <span class="btn-shine"></span>
-                        <span>ورود</span>
-                    </button>
-                </div>
-                <p class="lock-error" id="lockError">رمز اشتباهه، دوباره امتحان کن 🙈</p>
+            <!-- Category Filters -->
+            <div class="filter-tabs" id="filterTabs">
+                <button class="filter-tab active" data-filter="all"><span>✨</span> همه</button>
+                <button class="filter-tab" data-filter="story"><span>📖</span> داستان</button>
+                <button class="filter-tab" data-filter="novel"><span>📚</span> رمان</button>
+                <button class="filter-tab" data-filter="book"><span>📕</span> کتاب</button>
+                <button class="filter-tab" data-filter="audiobook"><span>🎧</span> کتاب صوتی</button>
+                <button class="filter-tab" data-filter="text"><span>✍️</span> نوشته</button>
+                <button class="filter-tab" data-filter="video"><span>🎬</span> ویدیو</button>
+                <button class="filter-tab" data-filter="audio"><span>🎙️</span> صدا</button>
+                <button class="filter-tab" data-filter="pdf"><span>📄</span> PDF</button>
             </div>
 
-            <!-- Gallery (hidden until unlocked) -->
+            <!-- Gallery — always visible to everyone -->
             <div class="portfolio-gallery" id="portfolioGallery"></div>
 
-            <!-- Upload Form (hidden until unlocked) -->
+            <!-- Upload Form (hidden until admin unlocks via the lock button) -->
             <div class="upload-panel glass-panel" id="uploadPanel">
                 <h3>➕ افزودن نمونه‌کار جدید</h3>
                 <form id="uploadForm">
                     <div class="form-row">
-                        <input type="text" id="itemTitle" placeholder="عنوان (مثلاً: یه ویدیوی جدید)" required />
+                        <input type="text" id="itemTitle" placeholder="عنوان (مثلاً: فصل اول یه رمان جدید)" required />
                     </div>
                     <div class="form-row">
                         <select id="itemType" required>
+                            <option value="story">📖 داستان</option>
+                            <option value="novel">📚 رمان</option>
+                            <option value="book">📕 کتاب (فایل)</option>
+                            <option value="audiobook">🎧 کتاب صوتی</option>
+                            <option value="text">✍️ نوشته</option>
                             <option value="video">🎬 ویدیو</option>
                             <option value="audio">🎙️ صدا</option>
                             <option value="pdf">📄 فایل PDF</option>
-                            <option value="text">✍️ متن</option>
                         </select>
                     </div>
                     <div class="form-row" id="fileRow">
                         <input type="file" id="itemFile" />
                     </div>
                     <div class="form-row" id="textRow" style="display:none;">
-                        <textarea id="itemText" placeholder="متنت رو اینجا بنویس..." rows="5"></textarea>
+                        <textarea id="itemText" placeholder="متنت رو اینجا بنویس..." rows="6"></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary" id="uploadSubmitBtn">
                         <span class="btn-shine"></span>
