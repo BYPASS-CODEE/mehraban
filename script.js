@@ -67,7 +67,7 @@ console.log('%c✨ مهربان ✨', 'font-size: 22px; color: #8b5cf6; font-wei
 // ============ GitHub Config ============
 // 🔑 توکن رو دقیقاً همین‌جا (رو کامپیوتر خودت، قبل از push) جایگزین کن.
 // این توکن رو با هیچ‌کس (حتی هوش مصنوعی) به اشتراک نذار، فقط خودت رو فایل بذارش.
-const GITHUB_TOKEN = "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";
+const GITHUB_TOKEN = "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";
 const GITHUB_OWNER = "bypass-codee";   // یوزرنیم گیت‌هابت
 const GITHUB_REPO = "mehraban";        // اسم دقیق ریپو
 const GITHUB_BRANCH = "main";          // اگه ریپوت "master" هست، اینو عوض کن
