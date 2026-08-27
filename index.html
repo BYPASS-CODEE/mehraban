@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مهربان | نویسنده</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="cursor-glow" id="cursorGlow"></div>
@@ -29,6 +29,7 @@
             <ul class="nav-links">
                 <li><a href="#home" class="nav-link">خانه</a></li>
                 <li><a href="#about" class="nav-link">درباره</a></li>
+                <li><a href="#portfolio" class="nav-link">نمونه‌کارها</a></li>
                 <li><a href="#connect" class="nav-link">تلگرام</a></li>
             </ul>
         </div>
@@ -119,6 +120,64 @@
                     <h3>اهل فلسفه</h3>
                     <p>فلسفه می‌خونم و سعی می‌کنم مفاهیمش رو به زبان ساده بگم.</p>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio / Private Works Section -->
+    <section id="portfolio" class="portfolio">
+        <div class="container">
+            <div class="section-header">
+                <span class="eyebrow">فضای خصوصی</span>
+                <h2>نمونه‌کارها</h2>
+                <div class="header-line"></div>
+            </div>
+
+            <!-- Lock Screen -->
+            <div class="lock-screen glass-panel" id="lockScreen">
+                <div class="lock-icon">🔒</div>
+                <h3>این بخش خصوصیه</h3>
+                <p>برای دیدن نوشته‌ها، ویدیوها و صداها، رمز رو وارد کن</p>
+                <div class="lock-form">
+                    <input type="password" id="portfolioPassword" placeholder="رمز عبور" />
+                    <button id="unlockBtn" class="btn btn-primary">
+                        <span class="btn-shine"></span>
+                        <span>ورود</span>
+                    </button>
+                </div>
+                <p class="lock-error" id="lockError">رمز اشتباهه، دوباره امتحان کن 🙈</p>
+            </div>
+
+            <!-- Gallery (hidden until unlocked) -->
+            <div class="portfolio-gallery" id="portfolioGallery"></div>
+
+            <!-- Upload Form (hidden until unlocked) -->
+            <div class="upload-panel glass-panel" id="uploadPanel">
+                <h3>➕ افزودن نمونه‌کار جدید</h3>
+                <form id="uploadForm">
+                    <div class="form-row">
+                        <input type="text" id="itemTitle" placeholder="عنوان (مثلاً: یه ویدیوی جدید)" required />
+                    </div>
+                    <div class="form-row">
+                        <select id="itemType" required>
+                            <option value="video">🎬 ویدیو</option>
+                            <option value="audio">🎙️ صدا</option>
+                            <option value="pdf">📄 فایل PDF</option>
+                            <option value="text">✍️ متن</option>
+                        </select>
+                    </div>
+                    <div class="form-row" id="fileRow">
+                        <input type="file" id="itemFile" />
+                    </div>
+                    <div class="form-row" id="textRow" style="display:none;">
+                        <textarea id="itemText" placeholder="متنت رو اینجا بنویس..." rows="5"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="uploadSubmitBtn">
+                        <span class="btn-shine"></span>
+                        <span id="uploadBtnText">آپلود کن 🚀</span>
+                    </button>
+                </form>
+                <p class="upload-status" id="uploadStatus"></p>
             </div>
         </div>
     </section>
